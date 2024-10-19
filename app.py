@@ -7,6 +7,8 @@ from flask import Flask, jsonify
 from db import db
 from config import DevelopConfig
 from resources.airports import blp as AirportBlueprint
+from resources.tickets import blp as TicketBlueprint
+
 
 def create_app():
     app = Flask(__name__)
@@ -22,5 +24,6 @@ def create_app():
         db.create_all()
 
     api.register_blueprint(AirportBlueprint)
+    api.register_blueprint(TicketBlueprint)
 
     return app

@@ -10,6 +10,7 @@ class BaseConfig:
     OPENAPI_SWAGGER_UI_PATH = "/swagger-ui"
     OPENAPI_SWAGGER_UI_URL = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
     WEATHER_API_KEY=os.getenv("WEATHER_API_KEY")
+    WEATHER_API_URL=os.getenv("WEATHER_API_URL")
 
 
 class DevelopConfig(BaseConfig):
