@@ -9,6 +9,7 @@ from config import DevelopConfig
 from resources.tickets import blp as TicketBlueprint
 from resources.airports import blp as AirportBlueprint
 from resources.healthchecks import blp as HealthcheckBlueprint
+from resources.flights import blp as FlightsBlueprint
 
 
 def create_app():
@@ -24,5 +25,6 @@ def create_app():
     api.register_blueprint(AirportBlueprint)
     api.register_blueprint(TicketBlueprint)
     api.register_blueprint(HealthcheckBlueprint)
+    api.register_blueprint(FlightsBlueprint)
 
     return app
