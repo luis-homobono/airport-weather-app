@@ -9,8 +9,12 @@ class BaseConfig:
     OPENAPI_URL_PREFIX = "/"
     OPENAPI_SWAGGER_UI_PATH = "/swagger-ui"
     OPENAPI_SWAGGER_UI_URL = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
-    WEATHER_API_KEY=os.getenv("WEATHER_API_KEY")
-    WEATHER_API_URL=os.getenv("WEATHER_API_URL")
+    WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+    WEATHER_API_URL = os.getenv("WEATHER_API_URL")
+    CACHE_TYPE = "RedisCache"
+    CACHE_REDIS_HOST = os.getenv("CACHE_REDIS_HOST")
+    CACHE_REDIS_PORT = os.getenv("CACHE_REDIS_PORT")
+    CACHE_REDIS_DB = os.getenv("CACHE_REDIS_DB")
 
 
 class DevelopConfig(BaseConfig):

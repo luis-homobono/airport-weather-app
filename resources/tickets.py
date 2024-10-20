@@ -4,8 +4,6 @@ import pandas as pd
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
-from db import db
-from models import AirportModel
 from schemas.tickets import UploadTicketsSchema
 from utils.insert_database import validate_airports, save_data
 
