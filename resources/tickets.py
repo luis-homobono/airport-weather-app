@@ -4,7 +4,9 @@ import pandas as pd
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
+from utils.cache_handler import read_cache
 from schemas.tickets import UploadTicketsSchema
+from utils.parrallel_process import generate_report
 from utils.insert_database import validate_airports, save_data, save_fligths
 
 blp = Blueprint("Tickets operations", __name__, description="Endpoints for tickets")
@@ -19,10 +21,10 @@ class UploadTicketsAirportView(MethodView):
         unique_data = data.drop_duplicates(keep=False)
         airports = set(list(unique_data["origin_iata_code"].unique()) + list(unique_data['destination_iata_code'].unique()))
         airports_validated = validate_airports(airports)
-        if len(airports_validated) > 0:
-            print("SAVE DATA")
-            save_data(data=data, airports=airports_validated)
+        cached = read_cache(airports=airports)
+        if len(cached) < len(airports_validated):
+            responses = save_data(data=data, airports=airports_validated)
+            cached.append(responses)
 
         save_fligths(tickets_data=unique_data)
-
         return {"message": "Data Uploaded Fine"}

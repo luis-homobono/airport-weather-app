@@ -2,15 +2,16 @@ from http import HTTPStatus
 from typing import List, Dict
 
 import httpx
+import redis
 import pandas as pd
 from flask import current_app
 from flask_smorest import abort
 
 from db import db
-from cache import redis_client
+
 from models import AirportModel, FlightModel
 from .parrallel_process import apply_parallel
-
+from .cache_handler import cache_data, persist_data
 
 def validate_airports(airports: List) -> bool:
     try:
@@ -22,7 +23,7 @@ def validate_airports(airports: List) -> bool:
         abort(HTTPStatus.BAD_REQUEST, message="Internal server error")
 
 
-def save_data(data: pd.DataFrame, airports: List) -> None:
+def save_data(data: pd.DataFrame, airports: List[str]) -> List[Dict]:
     payloads = []
     airport_inserts = []
     key = current_app.config["WEATHER_API_KEY"]
@@ -42,26 +43,32 @@ def save_data(data: pd.DataFrame, airports: List) -> None:
         airport_inserts.append(airport_info)
         payloads.append({"latitude": latitude, "longitude": longitude, "airport_code": airport, "key": key, "url": url})
     responses = apply_parallel(func=get_weather, payloads=payloads)
+    try:
+        cache_data(responses=responses[0])
+    except:
+        persist_data(responses=responses[0])  # Check how to get nested list
+
     db.session.add_all(airport_inserts)
     db.session.commit()
+    return responses[0]
 
 
 def get_weather(airport_info: Dict) -> dict:
-    
     params = {
         "q": f"{airport_info['latitude']},{airport_info['longitude']}",
-        "days": 5,  # Forecasting
+        # "days": 5,  # Forecasting
         "key": airport_info["key"],
-        "url": airport_info["url"]
     }
     response = httpx.get(f"{airport_info['url']}", params=params)
     if response.status_code == 200:
-        return response.json()
+        data = response.json()
+        data["code"] = airport_info["airport_code"]
+        return data
     else:
         return {f"message": "Not get weather data for airport {airport_code}"}
 
 
-def save_fligths(tickets_data: pd.DataFrame):
+def save_fligths(tickets_data: pd.DataFrame) -> None:
     flight_inserts = []
     for index, flight_row in tickets_data.iterrows():
         flight = FlightModel(airline=flight_row.airline, flight_num=flight_row.flight_num, origin_iata_code=flight_row.origin_iata_code, destination_iata_code=flight_row.destination_iata_code)
