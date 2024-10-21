@@ -9,6 +9,7 @@ from schemas.airports import AirportSchema, WeatherAirportSchema
 
 blp = Blueprint("Airports operations", __name__, description="Endpoints for airports")
 
+
 @blp.route("/airport")
 class AirportView(MethodView):
 

@@ -9,6 +9,7 @@ from schemas.flights import FlightSchema, WeatherFlightSchema
 
 blp = Blueprint("Flights operations", __name__, description="Endpoints for flights")
 
+
 @blp.route("/flights")
 class FlightsView(MethodView):
 
@@ -29,9 +30,19 @@ class FlightsWeatherView(MethodView):
             airports = FlightModel.query.filter_by(flight_num=num_flight)
             airport_response = [airport.__dict__ for airport in airports]
             for airport in airport_response:
-                cached = read_cache([airport["destination_iata_code"], airport["origin_iata_code"]])
-                airport["destination"] = [airport_cach for airport_cach in cached if airport_cach["code"] == airport["destination_iata_code"]][0]
-                airport["origin"] = [airport_cach for airport_cach in cached if airport_cach["code"] == airport["origin_iata_code"]][0]
+                cached = read_cache(
+                    [airport["destination_iata_code"], airport["origin_iata_code"]]
+                )
+                airport["destination"] = [
+                    airport_cach
+                    for airport_cach in cached
+                    if airport_cach["code"] == airport["destination_iata_code"]
+                ][0]
+                airport["origin"] = [
+                    airport_cach
+                    for airport_cach in cached
+                    if airport_cach["code"] == airport["origin_iata_code"]
+                ][0]
             return airport_response
         except:
             abort(400, message="Flights weather empty")

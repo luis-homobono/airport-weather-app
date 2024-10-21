@@ -13,6 +13,7 @@ from models import AirportModel, FlightModel
 from .parrallel_process import apply_parallel
 from .cache_handler import cache_data, persist_data
 
+
 def validate_airports(airports: List) -> bool:
     try:
         db_airports = db.session.query().with_entities(AirportModel.iata_code).all()
@@ -39,9 +40,19 @@ def save_data(data: pd.DataFrame, airports: List[str]) -> List[Dict]:
             name = data_airport.destination_name[0]
             latitude = float(data_airport.destination_latitude[0])
             longitude = float(data_airport.destination_longitude[0])
-        airport_info = AirportModel(iata_code=airport, name=name, latitude=latitude, longitude=longitude)
+        airport_info = AirportModel(
+            iata_code=airport, name=name, latitude=latitude, longitude=longitude
+        )
         airport_inserts.append(airport_info)
-        payloads.append({"latitude": latitude, "longitude": longitude, "airport_code": airport, "key": key, "url": url})
+        payloads.append(
+            {
+                "latitude": latitude,
+                "longitude": longitude,
+                "airport_code": airport,
+                "key": key,
+                "url": url,
+            }
+        )
     responses = apply_parallel(func=get_weather, payloads=payloads)
     try:
         cache_data(responses=responses[0])
@@ -71,7 +82,12 @@ def get_weather(airport_info: Dict) -> dict:
 def save_fligths(tickets_data: pd.DataFrame) -> None:
     flight_inserts = []
     for index, flight_row in tickets_data.iterrows():
-        flight = FlightModel(airline=flight_row.airline, flight_num=flight_row.flight_num, origin_iata_code=flight_row.origin_iata_code, destination_iata_code=flight_row.destination_iata_code)
+        flight = FlightModel(
+            airline=flight_row.airline,
+            flight_num=flight_row.flight_num,
+            origin_iata_code=flight_row.origin_iata_code,
+            destination_iata_code=flight_row.destination_iata_code,
+        )
         flight_inserts.append(flight)
     db.session.add_all(flight_inserts)
     db.session.commit()

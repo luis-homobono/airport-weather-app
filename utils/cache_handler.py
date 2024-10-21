@@ -36,7 +36,9 @@ def cache_data(responses: List) -> None:
 
 def persist_data(responses: List) -> None:
     for response in responses:
-        with open(f"./data/persistence/weather_info_{response['code']}.json", "w+") as output_file:
+        with open(
+            f"./data/persistence/weather_info_{response['code']}.json", "w+"
+        ) as output_file:
             json.dump(response, output_file, indent=2)
 
     return True
